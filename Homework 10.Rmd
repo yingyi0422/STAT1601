@@ -1,0 +1,50 @@
+---
+title: "Homework 10"
+author: "Yingyi Zhu"
+date: "4/18/2022"
+output: html_document
+---
+```{r}
+library(ggplot2)
+library(caret)
+library(dplyr)
+```
+
+# Question 1
+```{r}
+BS<-read.csv("/Users/zach0422/Desktop/STAT1601/BroadwayShows.csv")
+model1<-train(Revenue~Paid.Attendance,BS,method="lm")
+summary(model1)
+```
+
+the model we can use to predict revenue on paid attendence: Revenue = 0.05261 + 0.07645*Paid Attendance
+
+# Question 2
+
+For every additional paid attendence of 1,000 people, there is a 76450 dollars(0.07645 * 1,000,000) increase in revenue.
+
+# Question 3
+
+The multiple R-squared value is 0.9237, which means that 92.37% of the variability in revenue can be explained by our model. It also shows that the model is a good fit and can be used to make relative accurate prediction.
+
+# Question 4
+```{r}
+library(ISLR)
+aic_model=train(Revenue~Paid.Attendance+Number.of.Shows+Avg.Ticket.Price,BS,method="lmStepAIC",directoin="both",trace=FALSE)
+summary(aic_model)
+```
+
+# Question 5
+
+The coefficient of Paid Attendance is 0.07596, which means that For every additional paid attendence of 1,000 people, there is a 75960 dollars(0.07596 * 1,000,000) increase in revenue.
+
+# Question 6
+
+The Adjusted R-squared for the aic model is 0.9986, which means that 99.86% of times the model is going to make good predictions. It also indicates that the model is a good fit since the number is really close to 1.
+
+# Question 7
+```{r}
+new=data.frame(Paid.Attendance=270,Number.of.Shows=30,Avg.Ticket.Price=80)
+predict(aic_model,new)
+```
+

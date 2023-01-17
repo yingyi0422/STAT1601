@@ -1,0 +1,37 @@
+---
+title: "Homework 7"
+author: "Yingyi Zhu"
+date: "3/28/2022"
+output: html_document
+---
+```{r}
+RD<-read.csv("/Users/zach0422/Desktop/STAT1601/RollerCoasterData.csv")
+library(ggplot2)
+library(RColorBrewer)
+```
+
+# Question 1
+```{r}
+ggplot(RD,aes(x=Design, fill=Design)) + geom_bar(fill=brewer.pal(7, "Set1")) + labs(x="Roller Coaster Design", y="Number of Roller Coasters", title ="Roller Coasters") + theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust = 0.5)) 
+```
+
+# Question 2
+```{r}
+RD$Inv = as.character(RD$Inversions)
+ggplot(RD,aes(x=Design, fill=Inv)) + geom_bar(position = "fill")
+```
+
+
+It is shown that design and inversions variables are relatively dependent(related) since there is a dramatic percent change of answers between the inversions categories.
+
+# Question 3
+```{r}
+ggplot(RD,aes(x=age)) + geom_histogram(fill="turquoise", color="black") + labs(x="Age of Roller Coasters", y="Number of Roller Coasters")
+```
+
+# Question 4
+```{r}
+ggplot(RD,aes(x=State,y=age, fill=Type)) + geom_boxplot() + theme(axis.text.x = element_text(angle=90))
+```
+
+It is shown in the plot that the state with the oldest roller coaster is Tennessee. Also, the type of the oldest roller coaster is wooden.

@@ -1,0 +1,40 @@
+---
+title: "Homework 8"
+author: "Yingyi Zhu"
+date: "4/4/2022"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(ggwordcloud)
+RC<-read.csv("/Users/zach0422/Desktop/RollerCoasterData.csv")
+```
+
+# Question 1
+```{r}
+New<-RC%>%
+    group_by(Design)%>%
+    summarize(Number = n())%>%
+    mutate(Percentage = round(Number*100/nrow(RC),1))
+
+ggplot(New,aes(x=reorder(Design,-Percentage), y=Percentage)) + geom_bar(stat= "identity", fill=brewer.pal(7,"Dark2")) + labs(x="Roller Coaster Design", y="Percentage", title="Roller Coasters") + geom_text(aes(label=Percentage)) + theme(plot.title = element_text(hjust=0.5))
+```
+
+# Question 2
+```{r}
+ggplot(RC,aes(label=City, size=age, color=Type)) + geom_text_wordcloud_area(rm_outside = TRUE)
+```
+
+# Question 3
+```{r}
+ggplot(RC,aes(x=Height, y=Speed, color=Type)) + scale_color_manual(values= c("azure3","burlywood3")) + geom_point() + theme_classic()
+```
+
+# Question 4
+```{r}
+ggplot(RC,aes(x=Height, y=Speed, fill=Type, size=age)) + geom_point(shape = 21, alpha = 0.5, color="black") + scale_size(range = c(0.1,13))
+```
+

@@ -1,0 +1,87 @@
+---
+title: "Homework 6"
+author: "Yingyi Zhu"
+date: "3/21/2022"
+output: html_document
+---
+```{r}
+library(rvest)
+library(dplyr)
+```
+
+```{r}
+website<-"https://www.imdb.com/search/title/?groups=top_250&sort=user_rating"
+page<-read_html(website)
+```
+
+# Question 1
+```{r}
+title<-page%>%
+  html_nodes(".lister-item-header a")%>%
+  html_text()
+
+rank<-page%>%
+  html_nodes(".text-primary")%>%
+  html_text()
+
+genre<-page%>%
+  html_nodes(".genre")%>%
+  html_text()
+
+rating<-page%>%
+  html_nodes(".ratings-imdb-rating strong")%>%
+  html_text()
+
+runtime<-page%>%
+  html_nodes(".runtime")%>%
+  html_text()
+
+certificate<-page%>%
+  html_nodes(".certificate")%>%
+  html_text()
+
+votes<-page%>%
+  html_nodes(".sort-num_votes-visible span:nth-child(2)")%>%
+  html_text()
+
+top50movies<-data.frame(title, rank, genre, rating, runtime, certificate, votes)
+
+head(top50movies, 6)
+```
+# Question 2
+```{r}
+class(top50movies$votes)
+class(top50movies$runtime)
+```
+
+# Question 3
+```{r}
+new_data<-top50movies%>%
+  mutate(Runtimes = as.numeric(gsub("min", "", runtime)))
+
+head(new_data, 6)
+```
+
+# Question 4
+```{r}
+new_data1<-new_data%>%
+  mutate(vote_count = as.numeric(gsub("\\,", "", votes)))
+
+head(new_data1, 6)
+```
+# Question 5
+```{r}
+new_data2<-new_data1%>%
+  mutate(Genre = gsub("\n", "", genre))%>%
+  select(-runtime, -votes, -genre)
+
+glimpse(new_data2)
+```
+
+# Question 6
+```{r}
+new_data2%>%
+  group_by(Genre)%>%
+  summarise(mean_runtime = mean(Runtimes, na.rm = T))
+```
+

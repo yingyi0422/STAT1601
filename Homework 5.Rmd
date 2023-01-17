@@ -1,0 +1,38 @@
+---
+title: "Homework 5"
+author: "Yingyi Zhu"
+date: "2/28/2022"
+output: html_document
+---
+```{r}
+library(nycflights13)
+library(dplyr)
+```
+
+# Question 1
+
+## (a)
+```{r}
+weather%>%
+  group_by(month)%>%
+  summarise(Avg_temp = mean(temp,na.rm = T), data_points = n())
+``` 
+
+## (b)
+```{r}
+dat<-weather%>%
+  mutate(temp_in_c = (5/9)*(temp-32))
+glimpse(dat)
+```
+
+# Question 2
+```{r}
+dat1 = flights%>%
+  group_by(carrier)%>%
+  summarise(Average_delay = mean(dep_delay,na.rm = T))%>%
+  arrange(desc(Average_delay))%>%
+  inner_join(airlines, by=c("carrier"))%>%
+  rename(airline_name = name)%>%
+  select(carrier,airline_name,Average_delay)
+head(dat1, 16)
+```

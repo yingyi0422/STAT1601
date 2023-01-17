@@ -1,0 +1,59 @@
+---
+title: "Homework 2"
+output: html_document
+---
+
+# Question 1 
+```{r}
+write.csv(faithful,"/Users/zach0422/Desktop/STAT1601/faithful.csv")
+```
+
+# Question 2 
+## a
+```{r}
+PK<-read.csv("/Users/zach0422/Desktop/STAT1601/PoliceKillings.csv")
+```
+
+##b
+```{r}
+table(PK$raceethnicity,PK$gender)
+```
+
+## c
+```{r}
+class(PK$age)
+age<-PK$age
+age2<-as.integer(age)
+mean(age2, na.rm = T)
+```
+
+# Question 3
+## a
+```{r}
+rep("Q1",4)
+```
+
+## b
+```{r}
+seq(50,100,2.5)
+```
+
+## c
+```{r}
+rep(2010:2017,each=4)
+```
+
+## d
+```{r}
+rep(2016:2017,each=4,len=7)
+```
+
+## e
+```{r}
+c(seq(1295,1300),seq(1299,1290))
+```
+
+## f
+```{r}
+seq(4160,3530,len=7)
+```

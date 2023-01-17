@@ -1,0 +1,45 @@
+---
+title: "Homework 3"
+output: html_document
+---
+Yingyi_Zhu
+
+Feb_12_2022
+
+# Question 1
+```{r}
+PVA_data<-read.csv("/Users/zach0422/Desktop/STAT1601/PVA.csv")
+diff.in.gift<-PVA_data$Largest.Gift-PVA_data$Smallest.Gift
+PVA_data1<-data.frame(PVA_data,diff.in.gift)
+head(PVA_data1,8)
+```
+# Question 2
+```{r}
+PVA_data2 = PVA_data1
+names(PVA_data2)[5]<-c("income_level")
+names(PVA_data2)[8]<-c("current_gift")
+```
+# Question 3
+```{r}
+PVA_data3<-PVA_data2[,-c(3,9)]
+```
+# Question 4
+```{r}
+New_Data<-PVA_data3[which(PVA_data3$Age <= 60 & PVA_data3$income_level >= 5),]
+head(New_Data,8)
+```
+# Question 5
+```{r}
+Avg_data<-PVA_data3[which(PVA_data3$current_gift > 50 & PVA_data3$Time.Between.Gifts > 1),]
+mean(Avg_data$current_gift,na.rm = T)
+```
+# Question 6
+```{r}
+apply(PVA_data3[,c(5,6,7)],2,max,na.rm=T)
+```
+# Question 7
+```{r}
+tapply(PVA_data3$current_gift, PVA_data3$income_level, median, na.rm=T)
+```
+
+

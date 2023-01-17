@@ -1,0 +1,58 @@
+---
+title: "Homework 9"
+author: "Yingyi Zhu"
+date: "4/11/2022"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(nycflights13)
+library(RColorBrewer)
+```
+
+```{r}
+Thanksgiving_data<-flights%>%
+  inner_join(airlines, by="carrier")%>%
+  rename(airline_name=name)%>%
+  mutate(date=as.Date(time_hour))%>%
+  filter(date>="2013-11-24" & date<="2013-11-30")
+```
+
+# Question 1
+```{r}
+ggplot(Thanksgiving_data,aes(x=origin, y=dep_delay, fill=origin)) + geom_violin() + scale_fill_brewer(palette = "Set1")
+```
+
+# Question 2
+```{r}
+Thanksgiving_data1<-Thanksgiving_data%>%
+  group_by(date, airline_name)%>%
+  summarize(Avg.dep_delay=mean(dep_delay))
+
+ggplot(Thanksgiving_data1,aes(x=date, y=airline_name, fill=Avg.dep_delay)) + geom_tile() + scale_fill_distiller(palette = "Spectral") + theme(axis.text.x = element_text(angle = 90))
+```
+
+# Question 3
+```{r}
+Thanksgiving_data2<-Thanksgiving_data%>%
+  group_by(date, airline_name)%>%
+  summarize(Avg.distance=mean(distance))
+
+ggplot(Thanksgiving_data2,aes(x=date, y=airline_name, fill=Avg.distance)) + geom_tile() + scale_fill_gradient(low="skyblue",high="red") + theme(axis.text.x = element_text(angle = 90))
+```
+
+Hawaiian Airlines Inc. is the airline with the highest average traveled distance during the Thanksgiving week of 2013.
+
+# Question 4
+```{r}
+Christmas_data<-flights%>%
+  mutate(date=as.Date(time_hour))%>%
+  filter(date>="2013-12-21" & date<="2013-12-31")%>%
+  group_by(date,origin)%>%
+  summarise(avg_dep_delay=mean(dep_delay, na.rm = T))
+
+ggplot(Christmas_data,aes(x=date,y=avg_dep_delay,group=origin,color=origin)) + geom_line() + geom_point() + theme(axis.text.x = element_text(angle = 90))
+```
+

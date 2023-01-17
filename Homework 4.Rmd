@@ -1,0 +1,59 @@
+---
+title: "Homework 4"
+author: "Yingyi Zhu"
+date: "2/21/2022"
+output: html_document
+---
+# Question 1
+Hector
+
+# Question 2
+Remain the same   
+
+# Question 3
+The mean value would be higher than the median value. The top 10% of Americans hold nearly 70 percent of US total net worth, and that these 10% would spend a lot more then than the rest of the population, moving mean to a relatively high value. In contrast, median is less impacted by "extreme values" which would be a more reasonable and lower value.
+
+# Question 4
+```{r}
+TB<-read.csv("/Users/zach0422/Desktop/STAT1601/who_dataset.csv")
+library(dplyr)
+```
+
+## (A)
+```{r}
+TB1<-TB%>%
+  rename(age_group=age, tb_type=var)
+glimpse(TB1)
+```
+
+## (B)
+```{r}
+TB1%>%
+  select(tb_type)%>%
+  table()
+```
+
+## (C)
+```{r}
+TB1%>%
+  select(sex,tb_type)%>%
+  table()
+```
+
+## (D)
+```{r}
+US_TB<-TB1%>%
+  filter(year==2013 & country=="United States of America")%>%
+  arrange(-cases)
+head(US_TB)
+```
+## (E)
+```{r}
+TB1%>%
+  filter(country=="Ghana" & year==2013)%>%
+  group_by(sex)%>%
+  summarize(total_cases=sum(cases,na.rm = T))
+  
+```
+
+

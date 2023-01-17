@@ -1,0 +1,255 @@
+---
+title: "Exploring QS College Ranking with Different Variables"
+author: "Eric He, Zerui Wang, Yingyi Zhu"
+date: "4/24/2022"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(RColorBrewer)
+library(ggwordcloud)
+library(caret)
+
+# Junyang He
+Ranking = read.csv("/Users/eriche/Desktop/UVA/STAT\ 1601/qs-world-university-rankings-2017-to-2022-V2.csv")
+
+# Zerui Wang
+Ranking<-read.csv("/Users/wangzerui/Desktop/STAT 1601/qs-world-university-rankings-2017-to-2022-V2.csv")
+
+# Yingyi Zhu
+Ranking<-read.csv("/Users/zach0422/Desktop/STAT1601/qs-world-university-rankings-2017-to-2022-V2.csv")
+```
+
+# Data Clearning
+```{r}
+rank<-Ranking%>%
+  select(-c(link, city, logo, size,research_output))%>%
+  mutate(Faculty_count=gsub(",","",faculty_count),
+         Faculty_Count=gsub("\\.","",Faculty_count),
+         International_students=gsub(",","",international_students),
+         International_Students=gsub("\\.","",International_students))%>%
+  na.omit(rank)%>%
+  select(-c(faculty_count, Faculty_count, international_students, International_students))
+```
+
+# Check Variable Types
+``` {r}
+class(rank$university)
+class(rank$year)
+class(rank$rank_display)
+class(rank$country)
+class(rank$region)
+class(rank$type)
+class(rank$student_faculty_ratio)
+class(rank$Faculty_Count)
+class(rank$International_Students)
+class(rank$score)
+```
+
+# Change Variable Types
+``` {r}
+ranking<-rank %>%
+  mutate(year = as.factor(as.character(year)), 
+         Faculty_Count = as.numeric(as.character(Faculty_Count)),
+         International_Students=as.numeric(as.character(International_Students)))
+```
+
+# Summary of Key Numeric Variables
+``` {r}
+apply(ranking, 2, summary)
+```
+
+
+# Summary of Numerical Variables by Groups
+``` {r}
+ranking%>%
+  group_by(country,year)%>%
+  summarise(AvgFacultyCount = mean(Faculty_Count,na.rm=T))%>%
+  arrange(AvgFacultyCount)
+
+ranking%>%
+  group_by(country,year)%>%
+  summarise(AvgInternationalStu = mean(International_Students,na.rm=T))%>%
+  arrange(AvgInternationalStu)
+
+ranking%>%
+  group_by(country,year)%>%
+  summarise(AvgScore = mean(score,na.rm=T))%>%
+  arrange(AvgScore)
+
+```
+
+# Frequency Table
+``` {r}
+ranking%>%
+  select(region)%>%
+  table()
+
+ranking%>%
+  select(type)%>%
+  table()
+```
+
+
+# Two Way Table
+``` {r}
+ranking%>%
+  select(region, type)%>%
+  table()
+
+
+ranking%>%
+  select(country, type)%>%
+  table()
+```
+
+# Percentage of each type of university in each continent
+``` {r}
+ggplot(ranking,aes(x=region,fill=type))+geom_bar(position="fill")+
+  labs(x="Region",y="Percentage", title="Percentage of Public and Private Universities in Each Continent")+
+  theme(axis.text.x = element_text(angle = 45), plot.title = element_text(hjust=0.5))
+```
+
+# International student percentage at each of the top 10 universities in 2022
+```{r}
+top_ranking<-ranking%>%
+  filter(year == 2022)%>%
+  mutate(International_Percentage = International_Students/(student_faculty_ratio*Faculty_Count))%>%
+  slice(1:10)
+
+ggplot(top_ranking,aes(x=university,y=International_Percentage))+geom_bar(stat = "identity", fill=brewer.pal(10,"Spectral"))+
+  labs(x="Universities",y="Percentage", title="International Student Percentage at each Top 10 University in 2022")+
+  theme(axis.text.x = element_text(angle = 90), plot.title = element_text(hjust=0.5))
+
+```
+
+
+# Histogram of student faculty ratio
+``` {r}
+ranking_2022<-ranking%>%
+  filter(year == 2022)
+
+ggplot(ranking_2022, aes(x=student_faculty_ratio)) + geom_histogram(fill="cadetBlue1", color="black", bins=44)+ 
+  labs(x="Student:Faculty Ratio", y="# Universities", title="Distribution of Student Faculty Ratio in 2022")+
+  theme_minimal() + theme(plot.title = element_text(hjust=0.5))
+
+```
+
+
+# Side-by-Side Boxplot
+``` {r}
+ggplot(ranking,aes(x=region,y=student_faculty_ratio, fill=type))+geom_boxplot(color="purple", outlier.color="red")+labs(x="Region",y="Student Faculty Ratio", title="Student Faculty Ratio in all Regions")+theme(plot.title = element_text(hjust=0.5))
+
+``` 
+
+
+# Scatterplot 
+``` {r}
+RANK2022<-ranking%>%
+  filter(year == 2022)
+
+ggplot(RANK2022,aes(x=score, y=student_faculty_ratio, color=type))+ scale_color_manual(values= c("purple","red")) + geom_point()+ theme_classic()+labs(x="Score",y = "Student Faculty Ratio", title="Student Faculty Ratio V.S Score")+theme(plot.title = element_text(hjust=0.5))
+
+```
+
+
+# Side-by-Side Boxplot w/ 3 Variables
+``` {r}
+ggplot(ranking,aes(x=region,y=score,fill=type))+geom_boxplot()
+
+```
+
+``` {r}
+ggplot(ranking,aes(x=region,y=International_Students,fill=year))+geom_boxplot()+theme(axis.text.x = element_text(angle = 90))
+
+```
+
+# Ridgeline Plot
+``` {r}
+library(ggridges)
+library(ggplot2)
+library(viridis)
+library(hrbrthemes)
+
+ggplot(ranking, aes(x = `International_Students`, y = `region`, fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(name = "Temp. [F]", option = "C") +
+  labs(title = 'Distribution of International  Students in Different Regions') +
+  theme_ipsum() +
+    theme(legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8))
+```
+
+
+# Wordcloud
+``` {r}
+ranking1<-ranking%>%
+  filter(year == 2022)%>%
+  group_by(country)
+
+ggplot(ranking1,aes(label=country,size=International_Students,color = International_Students))+geom_text_wordcloud_area(rm_outside = TRUE)
+```
+
+
+# Violin Chart
+``` {r}
+ggplot(ranking, aes(x=region, y=student_faculty_ratio, fill=..x..)) + labs(title = "Student Faculty Ratio In Different Regions")+
+  geom_violin() + xlab("type") + theme(legend.position="none") + xlab("")
+    
+```
+
+
+# Multiple Linear Regression & Logistic Regression
+```{r}
+ranking=ranking%>%
+  na.omit()
+
+international_lm = train(International_Students ~ score + student_faculty_ratio + Faculty_Count, 
+                            ranking, method = "lm")
+
+type_glm = train(type ~ student_faculty_ratio + Faculty_Count +
+             International_Students, ranking, method = "glm")
+
+summary(international_lm)
+summary(type_glm)
+
+```
+
+# Predict number of international students and type of university with UVA stats
+``` {r}
+uva_lm = data.frame(score = 40.3, student_faculty_ratio = 14, Faculty_Count = 1600)
+predict(international_lm, uva_lm)
+
+uva_glm = data.frame(student_faculty_ratio = 14, Faculty_Count = 1600, International_Students = 2300)
+predict(type_glm, uva_glm)
+
+```
+
+
+# K-Nearest Neighbors
+``` {r}
+ranking=ranking%>%
+  mutate(Faculty_Access = ifelse(student_faculty_ratio > 20, "Low", 
+                                 ifelse(student_faculty_ratio > 10, "Medium", "High")))
+
+
+knn_model = train(Faculty_Access ~ score + year + region + type + Faculty_Count + International_Students, ranking, method = "knn")
+knn_model$finalModel
+ggplot(knn_model)
+```
+
+# Predict faculty accessibility with UVA stats and with another sample
+``` {r}
+uva_knn = data.frame(score = 40.3, year = as.factor(2022), region = "North America", type = "Public", Faculty_Count = 1600, International_Students = 2300)
+predict(knn_model, uva_knn)
+
+low_knn = data.frame(score = 20, year = as.factor(2022), region = "North America", type = "Public", Faculty_Count = 1000, International_Students = 3000)
+predict(knn_model, low_knn)
+```
+
+
+# Reference
+https://r-graph-gallery.com/294-basic-ridgeline-plot.html
